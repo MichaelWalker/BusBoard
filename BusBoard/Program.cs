@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using static System.Decimal;
 
 namespace BusBoard
 {
@@ -7,20 +9,19 @@ namespace BusBoard
     {
         static void Main(string[] args)
         {
-            // Read in the stopcode from the user
-            
-            // make an API call
-            
-            // print some stuff out.
-            
-            
             var transportApiClient = new TransportApiClient();
+            var postcodeApiClient = new PostcodeApiClient();
+            
+            var postcode = GetPostcodeFromUser();
+            var postcodeDetails = postcodeApiClient.GetPostcodeDetails(postcode);
+            var nearbyBusStopCodes =
+                transportApiClient.GetNearestStopCodes(postcodeDetails.Latitude, postcodeDetails.Longitude);
 
-            var stopCode = GetStopCodeFromUser();
-
-            var departures = transportApiClient.GetBusDeparturesForStop(stopCode);
-
-            PrintNextBuses(departures);
+            foreach (var stopCode in nearbyBusStopCodes.Take(2))
+            {
+                var departures = transportApiClient.GetBusDeparturesForStop(stopCode);
+                PrintNextBuses(departures);
+            }
         }
 
         private static void PrintNextBuses(BusDepartureResponse departures)
@@ -32,9 +33,9 @@ namespace BusBoard
             }
         }
 
-        private static string GetStopCodeFromUser()
+        private static string GetPostcodeFromUser()
         {
-            Console.WriteLine("Please enter the bus stop code:");
+            Console.WriteLine("Please enter your postcode:");
             return Console.ReadLine();
         }
     }
